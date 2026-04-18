@@ -3,7 +3,7 @@
   "displayName": "Jupyter ntfy",
   "description": "Get ntfy.sh push notifications when Jupyter notebook cells finish running",
   "publisher": "mikejovyan",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "license": "MIT",
   "icon": "assets/icon.png",
   "repository": {
@@ -24,17 +24,20 @@
     "configuration": {
       "title": "Jupyter ntfy",
       "properties": {
+        "jupyter-ntfy.server": {
+          "type": "string",
+          "default": "ntfy.sh",
+          "description": "Hostname of the ntfy server (e.g. ntfy.sh or ntfy.example.com)"
+        },
         "jupyter-ntfy.topic": {
           "type": "string",
           "default": "",
-          "description": "ntfy topic name. Pick something unique and hard to guess."
+          "description": "Topic to publish to — the topic is essentially a password, so pick something hard to guess"
         },
-        "jupyter-ntfy.priority": {
-          "type": "number",
-          "default": 3,
-          "minimum": 1,
-          "maximum": 5,
-          "description": "ntfy notification priority (1=min, 3=default, 5=max)."
+        "jupyter-ntfy.username": {
+          "type": "string",
+          "default": "",
+          "description": "Username for access-controlled topics"
         }
       }
     },
@@ -43,6 +46,10 @@
         "command": "jupyter-ntfy.toggleNotification",
         "title": "Toggle Cell Notification",
         "icon": "$(bell)"
+      },
+      {
+        "command": "jupyter-ntfy.setPassword",
+        "title": "Jupyter ntfy: Set ntfy Password"
       }
     ],
     "menus": {

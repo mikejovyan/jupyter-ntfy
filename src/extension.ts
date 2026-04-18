@@ -71,7 +71,26 @@ export function activate(context: vscode.ExtensionContext) {
         restoreFromMetadata(vscode.window.activeNotebookEditor.notebook);
     }
 
-    context.subscriptions.push(toggleCommand, executionListener, notebookOpenListener);
+    const setPasswordCommand = vscode.commands.registerCommand(
+        'jupyter-ntfy.setPassword',
+        async () => {
+            const password = await vscode.window.showInputBox({
+                prompt: 'Enter ntfy password',
+                password: true,
+                ignoreFocusOut: true
+            });
+            if (password === undefined) { return; }
+            if (password === '') {
+                await context.secrets.delete('jupyter-ntfy.password');
+                vscode.window.showInformationMessage('ntfy password cleared.');
+            } else {
+                await context.secrets.store('jupyter-ntfy.password', password);
+                vscode.window.showInformationMessage('ntfy password saved.');
+            }
+        }
+    );
+
+    context.subscriptions.push(toggleCommand, setPasswordCommand, executionListener, notebookOpenListener);
 
     // Per-cell bell icon in status bar
     const notebooksApi: any = (vscode as any).notebooks;
@@ -132,25 +151,28 @@ export function activate(context: vscode.ExtensionContext) {
         const topic = config.get<string>('topic', '');
         if (!topic) { return; }
 
+        const server = (config.get<string>('server', 'ntfy.sh') || 'ntfy.sh').replace(/^https?:\/\//, '').replace(/\/$/, '');
+        const username = config.get<string>('username', '');
+        const password = await context.secrets.get('jupyter-ntfy.password');
+
         const title = `${fileName} - Cell ${cellIndex} ${status}`;
-        const priority = config.get<number>('priority', 3);
         const output = extractCellOutput(cell, 2000);
         const inputBlock = `**Input**\n\`\`\`python\n${truncated || '(empty cell)'}\n\`\`\``;
         const outputBlock = output ? `\n**Output**\n\`\`\`\n${output}\n\`\`\`` : '';
         const body = inputBlock + outputBlock;
 
-        const url = `https://ntfy.sh/${encodeURIComponent(topic)}`;
+        const headers: Record<string, string> = {
+            'Title': title,
+            'Tags': success === false ? 'x' : 'white_check_mark',
+            'Markdown': 'true'
+        };
+        if (username && password) {
+            headers['Authorization'] = 'Basic ' + Buffer.from(`${username}:${password}`).toString('base64');
+        }
+
+        const url = `https://${server}/${encodeURIComponent(topic)}`;
         try {
-            const res = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Title': title,
-                    'Priority': String(priority),
-                    'Tags': success === false ? 'x' : 'white_check_mark',
-                    'Markdown': 'true'
-                },
-                body
-            });
+            const res = await fetch(url, { method: 'POST', headers, body });
             if (!res.ok) { console.error('ntfy post failed:', res.status); }
         } catch (err) {
             console.error('ntfy post failed:', err);
@@ -170,8 +192,16 @@ function extractCellOutput(cell: vscode.NotebookCell, limit: number): string {
         for (const item of output.items ?? []) {
             if (!textMimes.has(item.mime)) { continue; }
             try {
-                const text = Buffer.from(item.data as any).toString('utf8').trim();
+                let text = Buffer.from(item.data as any).toString('utf8').trim();
                 if (!text) { continue; }
+                if (item.mime === 'application/vnd.code.notebook.error') {
+                    try {
+                        const parsed = JSON.parse(text);
+                        if (parsed && (parsed.message || parsed.stack)) {
+                            text = (parsed.stack || '').replace(/\x1b\[[0-9;]*m/g, '').split('\n').slice(0, 15).join('\n').trim();
+                        }
+                    } catch { /* not structured JSON, use raw */ }
+                }
                 chunks.push(text);
                 length += text.length;
                 if (length >= limit) {
