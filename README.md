@@ -2,7 +2,7 @@
 
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-Get [ntfy.sh](https://ntfy.sh) push notifications when Jupyter notebook cells finish running. Useful for long-running cells — get notified on your phone, desktop, or any device.
+Get [ntfy](https://ntfy.sh) push notifications when Jupyter notebook cells finish running. Useful for long-running cells — get notified on your phone, desktop, or any device.
 
 ---
 
@@ -15,10 +15,13 @@ Get [ntfy.sh](https://ntfy.sh) push notifications when Jupyter notebook cells fi
 ## Features
 
 - Bell icon in each cell's toolbar to toggle notifications
-- Push notifications via [ntfy.sh](https://ntfy.sh) when cells complete or fail
+- Push notifications when cells complete or fail
 - Markdown-formatted messages with cell input and output
-- In-editor popup notifications with "Go to Cell" and "Disable Notifications" actions
-- Persistent toggles — bell states are saved to notebook metadata and restored on reopen
+- Clean error formatting — tracebacks are stripped of terminal codes
+- In-editor popup with "Go to Cell" and "Disable Notifications" actions
+- Persistent toggles saved to notebook metadata
+- Works with ntfy.sh or any self-hosted ntfy instance
+- Username/password authentication for access-controlled topics
 
 ---
 
@@ -42,9 +45,9 @@ Get [ntfy.sh](https://ntfy.sh) push notifications when Jupyter notebook cells fi
 ## Setup
 
 1. Install the [ntfy app](https://ntfy.sh) on your phone or subscribe to a topic at [ntfy.sh](https://ntfy.sh)
-2. Pick a unique, hard-to-guess topic name (e.g. `my-jupyter-x7k2m9`)
-3. In VS Code, open **Settings** and search for `jupyter-ntfy`
-4. Set your topic name
+2. In VS Code, open **Settings** and search for `jupyter-ntfy`
+3. Set your server and topic
+4. If your topic requires authentication, set your username in settings and run **"Jupyter ntfy: Set ntfy Password"** from the command palette (`Ctrl+Shift+P`)
 5. Open a Jupyter notebook, click the bell icon on a cell, and run it
 
 ---
@@ -53,8 +56,11 @@ Get [ntfy.sh](https://ntfy.sh) push notifications when Jupyter notebook cells fi
 
 | Setting | Description | Default |
 |---|---|---|
-| `jupyter-ntfy.topic` | ntfy topic name | `""` |
-| `jupyter-ntfy.priority` | Notification priority (1=min, 3=default, 5=max) | `3` |
+| `jupyter-ntfy.server` | Hostname of the ntfy server | `ntfy.sh` |
+| `jupyter-ntfy.topic` | Topic to publish to | `""` |
+| `jupyter-ntfy.username` | Username for access-controlled topics | `""` |
+
+To set your password, run **"Jupyter ntfy: Set ntfy Password"** from the command palette. The password is stored securely in the system keychain and never written to disk.
 
 ---
 
@@ -62,22 +68,25 @@ Get [ntfy.sh](https://ntfy.sh) push notifications when Jupyter notebook cells fi
 
 When a cell with notifications enabled finishes executing, the extension:
 
-1. Shows a VS Code notification with the result
-2. Sends a POST request to `https://ntfy.sh/<your-topic>` with:
+1. Shows a VS Code popup with the result
+2. Sends a POST request to `https://<server>/<topic>` with:
    - **Title**: `filename.ipynb - Cell N finished` (or `failed`)
    - **Body**: Markdown-formatted cell input and output
    - **Tags**: checkmark or X emoji based on success/failure
+   - **Authorization**: Basic auth header if username and password are set
 
 ---
 
 ## Privacy
 
-- **No backend server** — notifications are sent directly from VS Code to ntfy.sh
-- **No accounts or credentials** — ntfy.sh topics are open by default; pick a topic name that is hard to guess
+- **No backend server** — notifications are sent directly from VS Code to your ntfy server
 - **No telemetry** — the extension does not collect or transmit any data beyond the ntfy notification itself
+- **Passwords stored securely** — credentials are kept in the OS keychain via VS Code's SecretStorage API
 
 ---
 
 ## License
 
 MIT — forked from [Jupyter Cell Notifier](https://github.com/ckm3/jupyter-cell-notifier) by Kaiming Cui.
+
+Built with the assistance of [Claude](https://claude.ai).
