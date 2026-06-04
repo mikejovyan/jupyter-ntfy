@@ -1,8 +1,8 @@
-# VS Code extension for ntfy push notifications on Jupyter notebook cell completion
+# Jupyter ntfy
 
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-Get [ntfy](https://ntfy.sh) push notifications when Jupyter notebook cells finish running. Useful for long-running cells — get notified on your phone, desktop, or any device.
+VS Code extension for ntfy push notifications on Jupyter notebook cell completion.
 
 ---
 
