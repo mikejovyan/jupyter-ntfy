@@ -1,4 +1,4 @@
-# Jupyter ntfy
+# VS Code extension for ntfy push notifications on Jupyter notebook cell completion
 
 ![License](https://img.shields.io/badge/license-MIT-green)
 
