@@ -19,20 +19,9 @@ VS Code extension for ntfy push notifications on Jupyter notebook cell completio
 - Works with ntfy.sh or any self-hosted ntfy instance
 - Username/password authentication for access-controlled topics
 
-## Requirements
-
-- VS Code 1.74+
-- [Jupyter](https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter) extension for VS Code
-
-## Installation
-
-### From the Marketplace
-
-1. Open **Extensions** (`Ctrl+Shift+X`)
-2. Search for **"Jupyter ntfy"**
-3. Click **Install**
-
 ## Setup
+
+**Requirements:** VS Code 1.74+ with the [Jupyter](https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter) extension.
 
 1. Install the [ntfy app](https://ntfy.sh) on your phone or subscribe to a topic at [ntfy.sh](https://ntfy.sh)
 2. In VS Code, open **Settings** and search for `jupyter-ntfy`
@@ -49,17 +38,6 @@ VS Code extension for ntfy push notifications on Jupyter notebook cell completio
 | `jupyter-ntfy.username` | Username for access-controlled topics | `""` |
 
 To set your password, run **"Jupyter ntfy: Set ntfy Password"** from the command palette. The password is stored securely in the system keychain and never written to disk.
-
-## How it works
-
-When a cell with notifications enabled finishes executing, the extension:
-
-1. Shows a VS Code popup with the result
-2. Sends a POST request to `https://<server>/<topic>` with:
-   - **Title**: `filename.ipynb - Cell N finished` (or `failed`)
-   - **Body**: Markdown-formatted cell input and output
-   - **Tags**: checkmark or X emoji based on success/failure
-   - **Authorization**: Basic auth header if username and password are set
 
 ## Privacy
 
