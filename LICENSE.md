@@ -1,7 +1,7 @@
 MIT License
 
-Forked from [Jupyter Cell Notifier](https://github.com/ckm3/jupyter-cell-notifier)
-by Kaiming Cui, Copyright (c) 2025 Kaiming Cui.
+Copyright (c) 2025 Kaiming Cui
+Copyright (c) 2026 mikejovyan
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
